@@ -1,0 +1,5 @@
+requests
+pandas
+openpyxl
+apscheduler
+python-telegram-bot==13.15
