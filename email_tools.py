@@ -3,7 +3,7 @@ from typing import List, Dict
 from config import IMAP_SERVER, IMAP_EMAIL, IMAP_PASSWORD, CITIES
 
 URL_RE = re.compile(r"https?://[\w\-\.\?\=\/#%&:+]+", re.I)
-CP_RE = re.compile(r"\b(46[0-9]{{3}})\b")
+CP_RE = re.compile(r"\b(46[0-9]{3})\b")
 
 def parse_email_for_listings(msg_body: str) -> List[Dict]:
     urls = URL_RE.findall(msg_body or "")
@@ -61,10 +61,15 @@ def fetch_alert_emails() -> list:
                 elif ctype == 'text/html' and not body:
                     body = part.get_payload(decode=True).decode(errors='ignore')
         else:
-            body = msg.get_payload(decode=True).decode(errors='ignore')
+            try:
+                body = msg.get_payload(decode=True).decode(errors='ignore')
+            except Exception:
+                body = str(msg)
         resultados = parse_email_for_listings(body)
         results.extend(resultados)
-        # marcar visto
-        mail.store(num, '+FLAGS', '\\Seen')
+        try:
+            mail.store(num, '+FLAGS', '\\Seen')
+        except Exception:
+            pass
     mail.logout()
     return results
